@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Om Bidikar — Embedded Software Engineer</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --bg2: #0f1215;
+    --bg3: #141820;
+    --panel: #111519;
+    --border: #1e2830;
+    --border2: #243040;
+    --green: #00ff88;
+    --green2: #00cc6a;
+    --green-dim: rgba(0,255,136,0.08);
+    --green-glow: rgba(0,255,136,0.15);
+    --cyan: #00d4ff;
+    --amber: #ffb800;
+    --red: #ff4455;
+    --text: #c8d8e8;
+    --text-dim: #5a7080;
+    --text-muted: #334455;
+    --font-mono: 'JetBrains Mono', 'Share Tech Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.7;
+    cursor: none;
+    overflow-x: hidden;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: var(--green);
+    border-radius: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s;
+    mix-blend-mode: screen;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 28px; height: 28px;
+    border: 1px solid rgba(0,255,136,0.4);
+    border-radius: 0;
+    pointer-events: none;
+    z-index: 9998;
+    transition: transform 0.15s, width 0.2s, height 0.2s;
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.03) 2px,
+      rgba(0,0,0,0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  /* Noise texture */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.5;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 500;
+    background: rgba(10,12,15,0.95);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    height: 52px;
+  }
+
+  .nav-brand {
+    color: var(--green);
+    font-size: 13px;
+    letter-spacing: 0.05em;
+  }
+  .nav-brand span { color: var(--text-dim); }
+
+  .nav-links {
+    display: flex;
+    gap: 0;
+    list-style: none;
+  }
+  .nav-links a {
+    display: block;
+    padding: 0 16px;
+    height: 52px;
+    line-height: 52px;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    transition: color 0.2s, background 0.2s;
+    border-left: 1px solid transparent;
+  }
+  .nav-links a:hover {
+    color: var(--green);
+    background: var(--green-dim);
+    border-left-color: var(--green);
+  }
+
+  /* SECTIONS */
+  section { padding: 80px 0; }
+  .container { max-width: 900px; margin: 0 auto; padding: 0 2rem; }
+
+  /* Section header */
+  .sec-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 3rem;
+  }
+  .sec-header::before {
+    content: attr(data-cmd);
+    color: var(--green);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .sec-header h2 {
+    color: var(--text);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: 400;
+  }
+  .sec-header::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ===================== HERO ===================== */
+  #home {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding-top: 52px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Grid background */
+  #home::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.3;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
+  }
+
+  .hero-inner {
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-prompt {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 2rem;
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+  .hero-prompt .ps { color: var(--green); }
+  .hero-prompt .path { color: var(--cyan); }
+
+  .hero-name {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-bottom: 1rem;
+  }
+  .hero-name .accent { color: var(--green); }
+
+  .hero-title {
+    font-size: 14px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    margin-bottom: 2rem;
+  }
+  .hero-title .tag { color: var(--amber); }
+
+  .hero-desc {
+    max-width: 520px;
+    color: var(--text-dim);
+    font-size: 13px;
+    line-height: 1.8;
+    margin-bottom: 2.5rem;
+    border-left: 2px solid var(--green);
+    padding-left: 1rem;
+  }
+
+  .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: none;
+  }
+  .btn-primary {
+    background: var(--green);
+    color: #000;
+    font-weight: 700;
+  }
+  .btn-primary:hover { background: var(--green2); transform: translateY(-1px); }
+  .btn-outline {
+    border: 1px solid var(--border2);
+    color: var(--text-dim);
+  }
+  .btn-outline:hover { border-color: var(--green); color: var(--green); }
+
+  .hero-stats {
+    display: flex;
+    gap: 2.5rem;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+  .stat-item .num {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--green);
+    line-height: 1;
+  }
+  .stat-item .lbl {
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* Blinking cursor */
+  .blink {
+    display: inline-block;
+    width: 10px;
+    height: 1.1em;
+    background: var(--green);
+    vertical-align: text-bottom;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* Typewriter */
+  .typewriter {
+    overflow: hidden;
+    white-space: nowrap;
+    animation: typing 3s steps(40, end) forwards;
+  }
+  @keyframes typing { from { width: 0; } to { width: 100%; } }
+
+  /* ===================== ABOUT ===================== */
+  #about { background: var(--bg2); }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .terminal-window {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .terminal-bar {
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: #ff5f57; }
+  .dot-y { background: #ffbd2e; }
+  .dot-g { background: #28ca41; }
+  .terminal-title {
+    margin-left: 8px;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+  .terminal-body { padding: 1.2rem 1.5rem; }
+  .t-line { margin-bottom: 6px; font-size: 12px; }
+  .t-line .prompt { color: var(--green); }
+  .t-line .cmd { color: var(--text); }
+  .t-line .out { color: var(--text-dim); padding-left: 1rem; display: block; }
+  .t-line .key { color: var(--cyan); }
+  .t-line .val { color: var(--amber); }
+
+  .about-text {
+    padding: 1.5rem 0;
+    color: var(--text-dim);
+    font-size: 13px;
+    line-height: 1.9;
+  }
+  .about-text p { margin-bottom: 1rem; }
+  .about-text strong { color: var(--green); font-weight: 500; }
+
+  /* ===================== SKILLS ===================== */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .skill-group {
+    background: var(--panel);
+    padding: 1.5rem;
+  }
+  .skill-group-label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .skill-group-label::after { content: ''; flex:1; height:1px; background: var(--border); }
+  .skill-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .skill-tag {
+    font-size: 11px;
+    padding: 4px 10px;
+    border: 1px solid var(--border2);
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+  }
+  .skill-tag:hover { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+  .skill-tag.hot { border-color: rgba(0,212,255,0.3); color: var(--cyan); }
+
+  /* ===================== PROJECTS ===================== */
+  #projects { background: var(--bg2); }
+
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .project-card {
+    background: var(--panel);
+    padding: 1.5rem;
+    transition: background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .project-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 0;
+    background: var(--green);
+    transition: height 0.3s;
+  }
+  .project-card:hover::before { height: 100%; }
+  .project-card:hover { background: var(--bg3); }
+
+  .project-card.featured { grid-column: 1 / -1; }
+
+  .proj-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.8rem;
+  }
+  .proj-num {
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+  }
+  .proj-tags { display: flex; gap: 6px; }
+  .proj-tag {
+    font-size: 9px;
+    padding: 2px 7px;
+    border: 1px solid var(--border2);
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+  .proj-tag.c-tag { border-color: rgba(255,184,0,0.3); color: var(--amber); }
+  .proj-tag.asm-tag { border-color: rgba(255,68,85,0.3); color: var(--red); }
+  .proj-tag.emb-tag { border-color: rgba(0,212,255,0.3); color: var(--cyan); }
+
+  .proj-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+  }
+  .proj-desc {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+  .proj-tech {
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+  .proj-tech span { color: var(--green); }
+
+  .proj-links { display: flex; gap: 1rem; margin-top: 1rem; }
+  .proj-link {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.2s;
+    letter-spacing: 0.05em;
+  }
+  .proj-link:hover { color: var(--green); }
+  .proj-link svg { width: 12px; height: 12px; }
+
+  /* ===================== EXPERIENCE ===================== */
+  .exp-item {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 2rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .exp-item:last-child { border-bottom: none; }
+  .exp-date {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    padding-top: 3px;
+  }
+  .exp-date .year { color: var(--green); font-size: 10px; }
+  .exp-title { font-size: 15px; color: #fff; font-weight: 700; margin-bottom: 4px; }
+  .exp-org {
+    font-size: 11px;
+    color: var(--cyan);
+    letter-spacing: 0.08em;
+    margin-bottom: 0.8rem;
+  }
+  .exp-points { list-style: none; }
+  .exp-points li {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 5px;
+    padding-left: 1rem;
+    position: relative;
+  }
+  .exp-points li::before { content: '→'; position: absolute; left: 0; color: var(--green); }
+
+  /* ===================== ACHIEVEMENTS ===================== */
+  #achievements { background: var(--bg2); }
+
+  .ach-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .ach-card {
+    background: var(--panel);
+    padding: 1.5rem;
+    text-align: center;
+    transition: background 0.2s;
+  }
+  .ach-card:hover { background: var(--bg3); }
+  .ach-icon {
+    font-size: 2rem;
+    margin-bottom: 0.8rem;
+    display: block;
+  }
+  .ach-title {
+    font-size: 13px;
+    color: #fff;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .ach-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+  .ach-badge {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 9px;
+    padding: 2px 8px;
+    border: 1px solid var(--green);
+    color: var(--green);
+    letter-spacing: 0.1em;
+  }
+
+  /* ===================== CERTS ===================== */
+  .cert-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  .cert-card {
+    border: 1px solid var(--border);
+    padding: 1.2rem;
+    background: var(--panel);
+    transition: border-color 0.2s, background 0.2s;
+    cursor: default;
+  }
+  .cert-card:hover { border-color: var(--green); background: var(--bg3); }
+  .cert-card.pending { border-style: dashed; border-color: var(--text-muted); }
+  .cert-issuer {
+    font-size: 9px;
+    color: var(--green);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .cert-name {
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.5;
+    margin-bottom: 6px;
+  }
+  .cert-card.pending .cert-name { color: var(--text-dim); }
+  .cert-status {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+  }
+  .cert-status.done { color: var(--green); }
+  .cert-status.pending-s { color: var(--amber); }
+
+  /* ===================== CONTACT ===================== */
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+  .contact-info { }
+  .contact-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+    text-decoration: none;
+    color: var(--text-dim);
+    font-size: 13px;
+    transition: color 0.2s;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .contact-item:hover { color: var(--green); }
+  .contact-item .ci-label { font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 2px; letter-spacing: 0.1em; }
+  .contact-item .ci-val { color: inherit; }
+
+  .contact-form { }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label {
+    display: block;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 10px 12px;
+    outline: none;
+    resize: none;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus,
+  .form-group textarea:focus { border-color: var(--green); }
+  .form-group textarea { height: 100px; }
+
+  /* ===================== FOOTER ===================== */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  footer .ft-left span { color: var(--green); }
+  footer .ft-right { display: flex; gap: 1rem; }
+  footer a { color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+  footer a:hover { color: var(--green); }
+
+  /* ===================== ANIMATIONS ===================== */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+  /* Stagger children */
+  .stagger > * { opacity: 0; transform: translateY(10px); transition: opacity 0.4s ease, transform 0.4s ease; }
+  .stagger.visible > *:nth-child(1) { opacity:1; transform:none; transition-delay:0s; }
+  .stagger.visible > *:nth-child(2) { opacity:1; transform:none; transition-delay:0.08s; }
+  .stagger.visible > *:nth-child(3) { opacity:1; transform:none; transition-delay:0.16s; }
+  .stagger.visible > *:nth-child(4) { opacity:1; transform:none; transition-delay:0.24s; }
+  .stagger.visible > *:nth-child(5) { opacity:1; transform:none; transition-delay:0.32s; }
+  .stagger.visible > *:nth-child(6) { opacity:1; transform:none; transition-delay:0.4s; }
+
+  /* glow pulse on green elements */
+  @keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 0 0 rgba(0,255,136,0); }
+    50% { box-shadow: 0 0 16px rgba(0,255,136,0.2); }
+  }
+  .btn-primary { animation: glow-pulse 3s ease-in-out infinite; }
+
+  /* Responsive */
+  @media (max-width: 700px) {
+    .about-grid, .projects-grid, .ach-grid, .cert-grid, .skills-grid, .contact-grid { grid-template-columns: 1fr; }
+    .project-card.featured { grid-column: 1; }
+    .exp-item { grid-template-columns: 1fr; gap: 0.5rem; }
+    .hero-stats { gap: 1.5rem; }
+    .nav-links { display: none; }
+    .hero-name { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand"><span>~/</span>om-bidikar<span>$</span></div>
+  <ul class="nav-links">
+    <li><a href="#about">about</a></li>
+    <li><a href="#skills">skills</a></li>
+    <li><a href="#projects">projects</a></li>
+    <li><a href="#experience">experience</a></li>
+    <li><a href="#achievements">achievements</a></li>
+    <li><a href="#contact">contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="home">
+  <div class="container">
+    <div class="hero-inner">
+      <div class="hero-prompt fade-in">
+        <span class="ps">om@dev</span>:<span class="path">~/portfolio</span>$ <span style="color:var(--text-dim)">whoami</span>
+      </div>
+      <h1 class="hero-name fade-in" style="transition-delay:0.1s">
+        Om<span class="accent">.</span>Bidikar<span class="blink"></span>
+      </h1>
+      <div class="hero-title fade-in" style="transition-delay:0.2s">
+        <span class="tag">// </span>Embedded Software Engineer · System Programmer
+      </div>
+      <p class="hero-desc fade-in" style="transition-delay:0.3s">
+        I write close-to-metal software — firmware, system programs, and communication stacks using <strong style="color:var(--green)">C</strong>, <strong style="color:var(--green)">Linux</strong>, and real-time protocols like <strong style="color:var(--cyan)">CAN</strong>, <strong style="color:var(--cyan)">UART</strong>, <strong style="color:var(--cyan)">SPI</strong>, and <strong style="color:var(--cyan)">LoRa</strong>. Focused on reliability and efficiency at the hardware boundary.
+      </p>
+      <div class="hero-btns fade-in" style="transition-delay:0.4s">
+        <a href="#projects" class="btn btn-primary">./view_projects</a>
+        <a href="https://github.com/Omiiii-20" target="_blank" class="btn btn-outline">GitHub ↗</a>
+        <a href="https://linkedin.com/in/om-bidikar" target="_blank" class="btn btn-outline">LinkedIn ↗</a>
+      </div>
+      <div class="hero-stats fade-in stagger" style="transition-delay:0.5s">
+        <div class="stat-item">
+          <div class="num">9+</div>
+          <div class="lbl">Projects</div>
+        </div>
+        <div class="stat-item">
+          <div class="num">5+</div>
+          <div class="lbl">Protocols</div>
+        </div>
+        <div class="stat-item">
+          <div class="num">1</div>
+          <div class="lbl">Research Paper</div>
+        </div>
+        <div class="stat-item">
+          <div class="num">3rd</div>
+          <div class="lbl">Robo Race</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="container">
+    <div class="sec-header fade-in" data-cmd="$ cat about.txt">
+      <h2>about</h2>
+    </div>
+    <div class="about-grid fade-in">
+      <div class="terminal-window">
+        <div class="terminal-bar">
+          <div class="dot dot-r"></div>
+          <div class="dot dot-y"></div>
+          <div class="dot dot-g"></div>
+          <div class="terminal-title">om_bidikar.json</div>
+        </div>
+        <div class="terminal-body">
+          <div class="t-line"><span class="prompt">→ </span><span class="cmd">cat profile.json</span></div>
+          <br>
+          <div class="t-line"><span class="out">{</span></div>
+          <div class="t-line"><span class="out">&nbsp;&nbsp;<span class="key">"role"</span>: <span class="val">"Embedded SW Engineer"</span>,</span></div>
+          <div class="t-line"><span class="out">&nbsp;&nbsp;<span class="key">"location"</span>: <span class="val">"Bengaluru, Karnataka"</span>,</span></div>
+          <div class="t-line"><span class="out">&nbsp;&nbsp;<span class="key">"degree"</span>: <span class="val">"B.E Electronics & Comm"</span>,</span></div>
+          <div class="t-line"><span class="out">&nbsp;&nbsp;<span class="key">"college"</span>: <span class="val">"JCE Belagavi"</span>,</span></div>
+          <div class="t-line"><span class="out">&nbsp;&nbsp;<span class="key">"batch"</span>: <span class="val">"2021–2025"</span>,</span></div>
+          <div class="t-line"><span class="out">&nbsp;&nbsp;<span class="key">"primary_lang"</span>: <span class="val">"C"</span>,</span></div>
+          <div class="t-line"><span class="out">&nbsp;&nbsp;<span class="key">"focus"</span>: [</span></div>
+          <div class="t-line"><span class="out">&nbsp;&nbsp;&nbsp;&nbsp;<span class="val">"Firmware Development"</span>,</span></div>
+          <div class="t-line"><span class="out">&nbsp;&nbsp;&nbsp;&nbsp;<span class="val">"Linux System Programming"</span>,</span></div>
+          <div class="t-line"><span class="out">&nbsp;&nbsp;&nbsp;&nbsp;<span class="val">"Real-time Protocols"</span></span></div>
+          <div class="t-line"><span class="out">&nbsp;&nbsp;],</span></div>
+          <div class="t-line"><span class="out">&nbsp;&nbsp;<span class="key">"status"</span>: <span class="val">"open_to_work"</span></span></div>
+          <div class="t-line"><span class="out">}</span></div>
+          <br>
+          <div class="t-line"><span class="prompt">→ </span><span class="blink"></span></div>
+        </div>
+      </div>
+      <div class="about-text">
+        <p>I got into embedded systems not from a textbook, but from wanting to understand how code <strong>physically controls things</strong> — how a line of C can pulse a GPIO, drive a motor, or send a packet over a CAN bus at exactly the right moment.</p>
+        <p>During my training at <strong>Emertxe</strong>, I moved from writing basic programs to building real-time communication systems, implementing POSIX threads, and writing device drivers in Linux. Every project taught me to think in terms of <strong>memory, timing, and hardware constraints</strong> — not abstractions.</p>
+        <p>I've published a <strong>research paper</strong> on an embedded wearable, competed in robotics events, and built everything from a custom Linux shell to a LoRa-based IoT monitor on ARM Cortex-M4.</p>
+        <p>I want to build systems where <strong>every byte and every clock cycle counts</strong>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="container">
+    <div class="sec-header fade-in" data-cmd="$ ls skills/">
+      <h2>skills</h2>
+    </div>
+    <div class="skills-grid fade-in stagger">
+      <div class="skill-group">
+        <div class="skill-group-label">Languages</div>
+        <div class="skill-tags">
+          <span class="skill-tag hot">Embedded C</span>
+          <span class="skill-tag hot">C</span>
+          <span class="skill-tag">C++</span>
+          <span class="skill-tag">Assembly</span>
+          <span class="skill-tag">Makefile</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <div class="skill-group-label">Embedded & Hardware</div>
+        <div class="skill-tags">
+          <span class="skill-tag hot">ARM Cortex-M4</span>
+          <span class="skill-tag">PIC Microcontroller</span>
+          <span class="skill-tag">Arduino</span>
+          <span class="skill-tag">GPIO</span>
+          <span class="skill-tag">Timers</span>
+          <span class="skill-tag">Interrupts</span>
+          <span class="skill-tag">ADC</span>
+          <span class="skill-tag">PWM</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <div class="skill-group-label">Protocols</div>
+        <div class="skill-tags">
+          <span class="skill-tag hot">CAN</span>
+          <span class="skill-tag hot">UART</span>
+          <span class="skill-tag">SPI</span>
+          <span class="skill-tag">I2C</span>
+          <span class="skill-tag">LoRa</span>
+          <span class="skill-tag">TCP/UDP</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <div class="skill-group-label">Linux & System Programming</div>
+        <div class="skill-tags">
+          <span class="skill-tag hot">Linux System Calls</span>
+          <span class="skill-tag">IPC</span>
+          <span class="skill-tag">POSIX Threads</span>
+          <span class="skill-tag">Sockets</span>
+          <span class="skill-tag">Signals</span>
+          <span class="skill-tag">Memory Mgmt</span>
+          <span class="skill-tag">File I/O</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <div class="skill-group-label">Tools & Environment</div>
+        <div class="skill-tags">
+          <span class="skill-tag">GCC / G++</span>
+          <span class="skill-tag">GDB</span>
+          <span class="skill-tag">Keil µVision</span>
+          <span class="skill-tag">MPLAB X</span>
+          <span class="skill-tag">Vim</span>
+          <span class="skill-tag">Git</span>
+          <span class="skill-tag">Ubuntu</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <div class="skill-group-label">Core Concepts</div>
+        <div class="skill-tags">
+          <span class="skill-tag">Data Structures</span>
+          <span class="skill-tag">Linked Lists</span>
+          <span class="skill-tag">Hashing</span>
+          <span class="skill-tag">Bit Manipulation</span>
+          <span class="skill-tag">Real-time Systems</span>
+          <span class="skill-tag">Debugging</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="container">
+    <div class="sec-header fade-in" data-cmd="$ ls projects/ -la">
+      <h2>projects</h2>
+    </div>
+    <div class="projects-grid fade-in stagger">
+
+      <!-- Featured -->
+      <div class="project-card featured">
+        <div class="proj-meta">
+          <span class="proj-num">01 / FEATURED</span>
+          <div class="proj-tags">
+            <span class="proj-tag c-tag">C</span>
+            <span class="proj-tag emb-tag">CAN</span>
+            <span class="proj-tag emb-tag">PIC</span>
+          </div>
+        </div>
+        <div class="proj-name">CAN-Based Multi-ECU Automotive Dashboard</div>
+        <div class="proj-desc">Built a real-time automotive communication system simulating multiple ECUs over a CAN bus using PIC microcontrollers. Implements frame prioritization, error handling, and live dashboard data — mirrors production automotive architecture (engine, ABS, HVAC nodes).</div>
+        <div class="proj-tech"><span>Key tech:</span> CAN Protocol · PIC · Embedded C · Real-time scheduling · Frame filtering</div>
+        <div class="proj-links">
+          <a href="https://github.com/Omiiii-20/CAN-Based-Multi-ECU-Automotive-Dashboard-System" target="_blank" class="proj-link">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02.004 2.04.14 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.93.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            View Source
+          </a>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="proj-meta">
+          <span class="proj-num">02</span>
+          <div class="proj-tags"><span class="proj-tag asm-tag">Assembly</span><span class="proj-tag emb-tag">LoRa</span></div>
+        </div>
+        <div class="proj-name">IoT Temperature Monitor — LoRa + ARM Cortex-M4</div>
+        <div class="proj-desc">Wireless sensor node using LPC4088 (ARM Cortex-M4) with DHT11 and LoRa radio for long-range telemetry. Programmed in Assembly for minimal footprint.</div>
+        <div class="proj-tech"><span>Key tech:</span> ARM Cortex-M4 · LoRa · DHT11 · Assembly · LPC4088</div>
+        <div class="proj-links">
+          <a href="https://github.com/Omiiii-20/Temperature-monitoring-using-LORA-module-and-Arm-cortex-M4-LPC4088-microcomtroller" target="_blank" class="proj-link">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02.004 2.04.14 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.93.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            View Source
+          </a>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="proj-meta">
+          <span class="proj-num">03</span>
+          <div class="proj-tags"><span class="proj-tag c-tag">C</span><span class="proj-tag">Linux</span></div>
+        </div>
+        <div class="proj-name">Linux Mini Shell</div>
+        <div class="proj-desc">Unix-like shell supporting process control, pipes, I/O redirection, and built-in commands via Linux system calls (fork, exec, waitpid, dup2).</div>
+        <div class="proj-tech"><span>Key tech:</span> C · POSIX · fork/exec · pipe() · dup2 · signal handling</div>
+        <div class="proj-links">
+          <a href="https://github.com/Omiiii-20/Linux-mini-shell" target="_blank" class="proj-link">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02.004 2.04.14 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.93.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            View Source
+          </a>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="proj-meta">
+          <span class="proj-num">04</span>
+          <div class="proj-tags"><span class="proj-tag c-tag">C</span></div>
+        </div>
+        <div class="proj-name">LSB Image Steganography</div>
+        <div class="proj-desc">Hides and extracts secret files inside BMP images using Least Significant Bit manipulation. Supports arbitrary payload encoding with zero visible distortion.</div>
+        <div class="proj-tech"><span>Key tech:</span> C · Bit manipulation · BMP format · File I/O · Binary parsing</div>
+        <div class="proj-links">
+          <a href="https://github.com/Omiiii-20/Lsb_Bit_Stenography" target="_blank" class="proj-link">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02.004 2.04.14 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.93.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            View Source
+          </a>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="proj-meta">
+          <span class="proj-num">05</span>
+          <div class="proj-tags"><span class="proj-tag c-tag">C</span></div>
+        </div>
+        <div class="proj-name">MP3 Tag Reader</div>
+        <div class="proj-desc">Binary parser that extracts ID3v2 metadata (title, artist, album, year) from MP3 files. Demonstrates precise binary file parsing and struct-based data modeling.</div>
+        <div class="proj-tech"><span>Key tech:</span> C · Binary parsing · ID3v2 · File I/O · Structs</div>
+        <div class="proj-links">
+          <a href="https://github.com/Omiiii-20/Mp3_Tag_Reader" target="_blank" class="proj-link">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02.004 2.04.14 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.93.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            View Source
+          </a>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="proj-meta">
+          <span class="proj-num">06</span>
+          <div class="proj-tags"><span class="proj-tag c-tag">C</span></div>
+        </div>
+        <div class="proj-name">Arbitrary Precision Calculator</div>
+        <div class="proj-desc">Big-integer arithmetic engine performing operations on numbers beyond native type limits. Implements full arithmetic using doubly linked lists and dynamic memory.</div>
+        <div class="proj-tech"><span>Key tech:</span> C · Doubly linked lists · Dynamic memory · Custom allocator</div>
+        <div class="proj-links">
+          <a href="https://github.com/Omiiii-20/Arbitrary-Precision-Calculator" target="_blank" class="proj-link">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02.004 2.04.14 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.93.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            View Source
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="container">
+    <div class="sec-header fade-in" data-cmd="$ cat experience.log">
+      <h2>experience</h2>
+    </div>
+    <div class="fade-in">
+      <div class="exp-item">
+        <div>
+          <div class="exp-date">
+            <div class="year">2024 – 2025</div>
+            <div>~ 6 months</div>
+          </div>
+        </div>
+        <div>
+          <div class="exp-title">Advanced Embedded Systems Training</div>
+          <div class="exp-org">Emertxe Information Technologies · Bengaluru</div>
+          <ul class="exp-points">
+            <li>Industry-aligned embedded systems program with real-time project exposure</li>
+            <li>Hands-on system programming: Linux system calls, IPC, POSIX threads, TCP/UDP sockets</li>
+            <li>Embedded firmware development: bare-metal C on ARM Cortex-M4 and PIC platforms</li>
+            <li>Communication protocols: UART, SPI, I2C, CAN — from register level</li>
+            <li>Built 6+ low-level projects across system programming and embedded domains</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="exp-item">
+        <div>
+          <div class="exp-date">
+            <div class="year">2021 – 2025</div>
+            <div>B.E Degree</div>
+          </div>
+        </div>
+        <div>
+          <div class="exp-title">B.E — Electronics & Communication Engineering</div>
+          <div class="exp-org">Jain College of Engineering · Belagavi</div>
+          <ul class="exp-points">
+            <li>Core curriculum: Digital systems, Microcontrollers, Signals, Communication theory</li>
+            <li>Built Smart Sleeping Mask as final-year embedded project — published at tech conference</li>
+            <li>Active in technical events and inter-college competitions</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACHIEVEMENTS -->
+<section id="achievements">
+  <div class="container">
+    <div class="sec-header fade-in" data-cmd="$ cat achievements.txt">
+      <h2>achievements</h2>
+    </div>
+    <div class="ach-grid fade-in stagger">
+      <div class="ach-card">
+        <span class="ach-icon">📄</span>
+        <div class="ach-title">Research Paper Published</div>
+        <div class="ach-sub">Smart Sleeping Mask — Arduino-based wearable with audio integration. Presented at Technical Conference.</div>
+        <span class="ach-badge">PUBLISHED</span>
+      </div>
+      <div class="ach-card">
+        <span class="ach-icon">🏆</span>
+        <div class="ach-title">Robo Race — 3rd Place</div>
+        <div class="ach-sub">Inter-college robotics competition. Designed and programmed autonomous robot for obstacle course navigation.</div>
+        <span class="ach-badge">3RD PLACE</span>
+      </div>
+      <div class="ach-card">
+        <span class="ach-icon">🎓</span>
+        <div class="ach-title">Emertxe Certification</div>
+        <div class="ach-sub">Advanced Embedded Systems — industry-recognized certification from Emertxe Information Technologies.</div>
+        <span class="ach-badge" style="color:var(--amber);border-color:var(--amber)">IN PROGRESS</span>
+      </div>
+    </div>
+
+    <!-- Certificates -->
+    <div style="margin-top: 2rem;">
+      <div class="sec-header fade-in" data-cmd="$ ls certs/" style="margin-bottom:1.5rem">
+        <h2>certificates</h2>
+      </div>
+      <div class="cert-grid fade-in stagger">
+        <div class="cert-card">
+          <div class="cert-issuer">Tech Conference</div>
+          <div class="cert-name">Paper Presentation — Smart Sleeping Mask</div>
+          <div class="cert-status done">✓ Verified</div>
+          <a href="Paper_presentation_certificate.jpeg" target="_blank" class="proj-link" style="margin-top:10px;font-size:11px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            View Certificate
+          </a>
+        </div>
+        <div class="cert-card">
+          <div class="cert-issuer">Inter-college Competition</div>
+          <div class="cert-name">Robo Race — 3rd Place Certificate</div>
+          <div class="cert-status done">✓ Verified</div>
+          <a href="Robo_Race_certificate.jpeg" target="_blank" class="proj-link" style="margin-top:10px;font-size:11px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            View Certificate
+          </a>
+        </div>
+        <div class="cert-card pending">
+          <div class="cert-issuer">Emertxe</div>
+          <div class="cert-name">Advanced Embedded Systems Training</div>
+          <div class="cert-status pending-s">⏳ Arriving soon</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="container">
+    <div class="sec-header fade-in" data-cmd="$ ping om-bidikar">
+      <h2>contact</h2>
+    </div>
+    <div class="contact-grid fade-in">
+      <div class="contact-info">
+        <div class="contact-label">// open to opportunities</div>
+        <a href="mailto:ombidikar72@gmail.com" class="contact-item">
+          <div>
+            <span class="ci-label">EMAIL</span>
+            <span class="ci-val">ombidikar72@gmail.com</span>
+          </div>
+        </a>
+        <a href="tel:9353160159" class="contact-item">
+          <div>
+            <span class="ci-label">PHONE</span>
+            <span class="ci-val">+91 9353160159</span>
+          </div>
+        </a>
+        <a href="https://linkedin.com/in/om-bidikar" target="_blank" class="contact-item">
+          <div>
+            <span class="ci-label">LINKEDIN</span>
+            <span class="ci-val">linkedin.com/in/om-bidikar</span>
+          </div>
+        </a>
+        <a href="https://github.com/Omiiii-20" target="_blank" class="contact-item">
+          <div>
+            <span class="ci-label">GITHUB</span>
+            <span class="ci-val">github.com/Omiiii-20</span>
+          </div>
+        </a>
+        <div style="margin-top:1.5rem; padding:1rem; border:1px solid var(--border); background:var(--panel);">
+          <div style="font-size:10px;color:var(--text-muted);letter-spacing:0.1em;margin-bottom:6px">// STATUS</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--green)">
+            <span style="width:8px;height:8px;background:var(--green);border-radius:50%;animation:glow-pulse 2s infinite;display:block"></span>
+            Open to embedded / firmware / system programming roles
+          </div>
+        </div>
+      </div>
+      <div class="contact-form">
+        <div class="contact-label">// send a message</div>
+        <div class="form-group">
+          <label>name</label>
+          <input type="text" placeholder="your_name">
+        </div>
+        <div class="form-group">
+          <label>email</label>
+          <input type="email" placeholder="your@email.com">
+        </div>
+        <div class="form-group">
+          <label>message</label>
+          <textarea placeholder="// write your message here..."></textarea>
+        </div>
+        <button onclick="alert('Message noted. Om will get back to you.')" class="btn btn-primary" style="cursor:none;border:none;width:100%">./send_message</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-left">built by <span>Om Bidikar</span> · <span style="color:var(--text-muted)">C engineer who learned HTML for this</span></div>
+  <div class="ft-right">
+    <a href="https://github.com/Omiiii-20" target="_blank">GitHub</a>
+    <a href="https://linkedin.com/in/om-bidikar" target="_blank">LinkedIn</a>
+    <a href="mailto:ombidikar72@gmail.com">Email</a>
+  </div>
+</footer>
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  function animCursor() {
+    cursor.style.left = (mx - 4) + 'px';
+    cursor.style.top = (my - 4) + 'px';
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = (rx - 14) + 'px';
+    ring.style.top = (ry - 14) + 'px';
+    requestAnimationFrame(animCursor);
+  }
+  animCursor();
+
+  // Scroll animations
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+
+  // Hero immediate reveal
+  document.querySelectorAll('#home .fade-in').forEach((el, i) => {
+    setTimeout(() => el.classList.add('visible'), 200 + i * 120);
+  });
+</script>
+
+</body>
+</html>
