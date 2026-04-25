@@ -527,6 +527,7 @@
         </p>
         <div class="hero-btns fade">
           <a href="#projects" class="btn btn-p">./view_projects</a>
+          <a href="Om_Bidikar_Resume_.pdf" download class="btn btn-p" style="background:#00d4ff;color:#000;">↓ Resume</a>
           <a href="https://github.com/Omiiii-20" target="_blank" class="btn btn-o">GitHub ↗</a>
           <a href="https://linkedin.com/in/om-bidikar" target="_blank" class="btn btn-o">LinkedIn ↗</a>
         </div>
@@ -596,7 +597,7 @@
   <div class="wrap">
     <div class="slabel fade"><span class="cmd">$ ls skills/</span><h2>skills</h2></div>
     <div class="skills-grid fade">
-      <div class="sg"><div class="sg-lbl">Languages</div><div class="tags"><span class="tag hi">Embedded C</span><span class="tag hi">C</span><span class="tag">C++</span><span class="tag">Assembly</span><span class="tag">Makefile</span></div></div>
+      <div class="sg"><div class="sg-lbl">Languages</div><div class="tags"><span class="tag hi">Embedded C</span><span class="tag hi">C</span><span class="tag">C++</span></div></div>
       <div class="sg"><div class="sg-lbl">Embedded & Hardware</div><div class="tags"><span class="tag hi">ARM Cortex-M4</span><span class="tag">PIC MCU</span><span class="tag">Arduino</span><span class="tag">GPIO</span><span class="tag">Timers</span><span class="tag">Interrupts</span><span class="tag">ADC</span><span class="tag">PWM</span></div></div>
       <div class="sg"><div class="sg-lbl">Protocols</div><div class="tags"><span class="tag hi">CAN</span><span class="tag hi">UART</span><span class="tag">SPI</span><span class="tag">I2C</span><span class="tag">LoRa</span><span class="tag">TCP/UDP</span></div></div>
       <div class="sg"><div class="sg-lbl">Linux & System Programming</div><div class="tags"><span class="tag hi">System Calls</span><span class="tag">IPC</span><span class="tag">POSIX Threads</span><span class="tag">Sockets</span><span class="tag">Signals</span><span class="tag">Memory Mgmt</span></div></div>
@@ -670,7 +671,7 @@
     <div class="slabel fade"><span class="cmd">$ cat experience.log</span><h2>experience</h2></div>
     <div class="fade">
       <div class="exp-item">
-        <div class="edate"><span class="yr">2024 – 2025</span>~6 months</div>
+        <div class="edate"><span class="yr">Jun 2025 – Apr 2026</span>~10 months</div>
         <div>
           <div class="etitle">Advanced Embedded Systems Training</div>
           <div class="eorg">Emertxe Information Technologies · Bengaluru</div>
@@ -770,10 +771,12 @@
       </div>
       <div>
         <div class="csub">// send a message</div>
-        <div class="fg"><label>name</label><input type="text" placeholder="your_name"></div>
-        <div class="fg"><label>email</label><input type="email" placeholder="your@email.com"></div>
-        <div class="fg"><label>message</label><textarea placeholder="// write your message here..."></textarea></div>
-        <button class="btn-send" onclick="alert('Message sent. Om will get back to you soon.')">./send_message</button>
+        <form action="https://formspree.io/f/mgorqvgp" method="POST">
+          <div class="fg"><label>name</label><input type="text" name="name" placeholder="your_name" required></div>
+          <div class="fg"><label>email</label><input type="email" name="email" placeholder="your@email.com" required></div>
+          <div class="fg"><label>message</label><textarea name="message" placeholder="// write your message here..." required></textarea></div>
+          <button type="submit" class="btn-send">./send_message</button>
+        </form>
       </div>
     </div>
   </div>
