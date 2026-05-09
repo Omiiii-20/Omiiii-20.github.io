@@ -137,44 +137,54 @@
   .hero-layout {
     position: relative; z-index: 2;
     display: grid;
-    grid-template-columns: 1fr 260px;
+    grid-template-columns: 1fr 280px;
     gap: 4rem; align-items: center; width: 100%;
   }
 
-  /* Photo */
+  /* ── PHOTO — BLENDED (no box, no border) ── */
   .photo-wrap { display: flex; justify-content: center; }
+
   .photo-outer {
     position: relative;
-    width: 220px; height: 268px;
+    width: 260px; height: 320px;
   }
-  /* Rotating border glow */
+
+  /* Green ground glow behind the figure */
   .photo-outer::before {
     content: '';
-    position: absolute; inset: -3px;
-    background: linear-gradient(135deg, var(--green), transparent, var(--cyan), transparent, var(--green));
-    background-size: 300% 300%;
-    animation: borderrotate 4s linear infinite;
-    z-index: 0;
+    position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%);
+    width: 200px; height: 90px;
+    background: radial-gradient(ellipse, rgba(0,255,136,0.22) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
   }
-  @keyframes borderrotate { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+
+  /* Subtle cyan side glow */
+  .photo-outer::after {
+    content: '';
+    position: absolute; top: 20%; right: -30px;
+    width: 120px; height: 200px;
+    background: radial-gradient(ellipse, rgba(0,212,255,0.08) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
 
   .photo-inner {
     position: relative; z-index: 1;
     width: 100%; height: 100%;
-    overflow: hidden;
-    background: var(--bg);
-    border: 1px solid var(--border2);
+    overflow: visible;
+    background: transparent;
+    border: none;
   }
+
   .photo-inner img {
     width: 100%; height: 100%;
     object-fit: cover; object-position: center top;
     display: block;
-    filter: grayscale(20%) contrast(1.05);
-  }
-  .photo-inner::after {
-    content: '';
-    position: absolute; inset: 0;
-    background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,255,136,0.02) 3px, rgba(0,255,136,0.02) 4px);
+    filter: grayscale(8%) contrast(1.08) brightness(1.04);
+    /* Black bg pixels become transparent */
+    mix-blend-mode: lighten;
+    /* Radial fade — sharp at face, dissolves at edges & bottom */
+    -webkit-mask-image: radial-gradient(ellipse 88% 92% at 50% 38%, black 35%, rgba(0,0,0,0.9) 52%, rgba(0,0,0,0.4) 68%, transparent 82%);
+    mask-image: radial-gradient(ellipse 88% 92% at 50% 38%, black 35%, rgba(0,0,0,0.9) 52%, rgba(0,0,0,0.4) 68%, transparent 82%);
   }
 
   /* Corner labels */
@@ -202,7 +212,6 @@
   .blink { display: inline-block; width: 0.5em; height: 0.85em; background: var(--green); vertical-align: text-bottom; animation: blink 1s step-end infinite; }
   @keyframes blink { 50% { opacity: 0; } }
 
-  /* Typewriter subtitle */
   .hero-sub {
     display: flex; align-items: center; gap: 10px;
     font-size: 11px; color: var(--text-dim); letter-spacing: 0.12em;
@@ -306,7 +315,6 @@
     background: var(--panel); padding: 1.4rem;
     position: relative; overflow: hidden; transition: background 0.25s;
   }
-  /* Top accent line */
   .pc::after {
     content: ''; position: absolute; top: 0; left: 0; right: 0;
     height: 1px; background: transparent; transition: background 0.3s;
@@ -370,7 +378,6 @@
   /* ── ACHIEVEMENTS ── */
   #achievements { background: var(--bg2); }
 
-  /* Achievement cards - horizontal layout */
   .ach-list { display: flex; flex-direction: column; gap: 1px; background: var(--border); border: 1px solid var(--border); }
   .ach-row {
     background: var(--panel); padding: 1.4rem 1.6rem;
@@ -385,7 +392,6 @@
   .ach-row:hover { background: var(--bg3); }
   .ach-row:hover::before { background: var(--green); }
   .ach-icon { font-size: 1.6rem; text-align: center; }
-  .ach-body {}
   .ach-title { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 3px; }
   .ach-sub { font-size: 11px; color: var(--text-dim); line-height: 1.5; }
   .ach-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
@@ -496,7 +502,7 @@
     .ham { display: flex; }
     .hero-layout { grid-template-columns: 1fr; gap: 2rem; display: flex; flex-direction: column; align-items: center; text-align: center; }
     .photo-wrap { order: -1; }
-    .photo-outer { width: 140px; height: 170px; }
+    .photo-outer { width: 180px; height: 220px; }
     .hero-desc { margin: 0 auto 2rem; }
     .hero-desc::before { display: none; }
     .hero-btns { justify-content: center; }
@@ -594,7 +600,7 @@
           <div class="photo-tl">om_bidikar.init()</div>
           <div class="photo-outer">
             <div class="photo-inner">
-              <img src="om-profile.jpeg" alt="Om Bidikar — Embedded Software Engineer">
+              <img src="om-profile.png" alt="Om Bidikar — Embedded Software Engineer">
             </div>
           </div>
           <div class="photo-br">status: open_to_work</div>
@@ -646,9 +652,9 @@
     <div class="slabel fade"><span class="cmd">$ ls skills/ --verbose</span><h2>skills</h2></div>
     <div class="skills-grid fade">
       <div class="sg"><div class="sg-lbl">Languages</div><div class="tags"><span class="tag hi">Embedded C</span><span class="tag hi">C</span><span class="tag">C++</span></div></div>
-      <div class="sg"><div class="sg-lbl">Embedded & Hardware</div><div class="tags"><span class="tag hi">ARM Cortex-M4</span><span class="tag">PIC MCU</span><span class="tag">Arduino</span><span class="tag">GPIO</span><span class="tag">Timers</span><span class="tag">Interrupts</span><span class="tag">ADC</span><span class="tag">PWM</span></div></div>
+      <div class="sg"><div class="sg-lbl">Embedded &amp; Hardware</div><div class="tags"><span class="tag hi">ARM Cortex-M4</span><span class="tag">PIC MCU</span><span class="tag">Arduino</span><span class="tag">GPIO</span><span class="tag">Timers</span><span class="tag">Interrupts</span><span class="tag">ADC</span><span class="tag">PWM</span></div></div>
       <div class="sg"><div class="sg-lbl">Protocols</div><div class="tags"><span class="tag hi">CAN</span><span class="tag hi">UART</span><span class="tag">SPI</span><span class="tag">I2C</span><span class="tag">LoRa</span><span class="tag">TCP/UDP</span></div></div>
-      <div class="sg"><div class="sg-lbl">Linux & System Programming</div><div class="tags"><span class="tag hi">System Calls</span><span class="tag">IPC</span><span class="tag">POSIX Threads</span><span class="tag">Sockets</span><span class="tag">Signals</span><span class="tag">Memory Mgmt</span></div></div>
+      <div class="sg"><div class="sg-lbl">Linux &amp; System Programming</div><div class="tags"><span class="tag hi">System Calls</span><span class="tag">IPC</span><span class="tag">POSIX Threads</span><span class="tag">Sockets</span><span class="tag">Signals</span><span class="tag">Memory Mgmt</span></div></div>
       <div class="sg"><div class="sg-lbl">Tools</div><div class="tags"><span class="tag">GCC / GDB</span><span class="tag">Keil µVision</span><span class="tag">MPLAB X</span><span class="tag">Vim</span><span class="tag">Git</span><span class="tag">Ubuntu</span></div></div>
       <div class="sg"><div class="sg-lbl">Core Concepts</div><div class="tags"><span class="tag">Data Structures</span><span class="tag">Linked Lists</span><span class="tag">Bit Manipulation</span><span class="tag">Hashing</span><span class="tag">Real-time Systems</span></div></div>
     </div>
@@ -799,8 +805,7 @@
 <section id="achievements">
   <div class="wrap">
     <div class="slabel fade"><span class="cmd">$ cat achievements.txt</span><h2>achievements</h2></div>
-
-
+    <div class="ach-list fade">
       <div class="ach-row">
         <div class="ach-icon">📄</div>
         <div class="ach-body">
@@ -822,7 +827,7 @@
           <div class="ach-sub">Inter-college robotics competition. Designed and programmed robot for obstacle course navigation using embedded control.</div>
         </div>
         <div class="ach-right">
-          <span class="ach-badge">3RD PLACE</span>
+          <span class="ach-badge amb">3RD PLACE</span>
           <a href="Robo_Race_Certificate.jpeg" target="_blank" class="ach-viewlink">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
             View Certificate
@@ -830,7 +835,6 @@
         </div>
       </div>
     </div>
-
   </div>
 </section>
 
